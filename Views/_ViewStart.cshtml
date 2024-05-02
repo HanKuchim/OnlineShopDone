@@ -1,0 +1,86 @@
+﻿@using System.Security.Claims
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+    .header {
+        height: 10%;
+        width: 100%;
+        background: blueviolet;
+    }
+</style>
+<body>
+    <div class="header">
+        <div style="display: inline-block">
+            <table style="margin: 10% 10% 10% 10%">
+                <tr>
+                    <td>
+                        <div>
+                            <form action="/Products/Index" method="get">
+                                <button type="submit">Товары</button>
+                            </form>
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            <form action="/Vendors/Index" method="get">
+                                <button type="submit">Поставщики</button>
+                            </form>
+                        </div>
+                    </td>
+                    <td>
+                        @if (User.FindFirst(ClaimTypes.Role)?.Value! == "Admin")
+                        {
+                            <p>
+                                <form action="/PickupPoints/Index" method="get">
+                                    <button type="submit">Пункты выдачи</button>
+                                </form>
+                            </p>
+                        }
+                        else if (User.FindFirst(ClaimTypes.Role)?.Value! == "User")
+                        {
+                            <p>
+
+                                <form asp-controller="Orders" asp-action="Index" method="get">
+                                    <input type="hidden" name="PickUpPointId" value="@User.Claims.FirstOrDefault(c => c.Type == "WorkerPickupPoint")?.Value" />
+                                    <button type="submit">Заказы</button>
+                                </form>
+                            </p>
+                        }
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="position: absolute;right: 0;display: inline-block;width: 200px">
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                <!-- Показать информацию о пользователе и кнопку "выйти" -->
+                <p class="name" style="margin: 10px 5px 2px 2px;max-height: 40px;height: 30%">
+                    Добро пожаловать, @User.FindFirst(ClaimTypes.Name)?.Value! (Роль: @User.FindFirst(ClaimTypes.Role)?.Value!)
+                </p>
+                <form method="post" asp-action="Logout">
+                    <button style="margin: 5px 20px 2px 2px;width: 100px" type="submit">Выйти</button>
+                </form>
+            }
+            else
+            {
+                <!-- Показать сообщение и кнопку "войти" -->
+                <p style="margin: 10px 5px 2px 2px;max-height: 20px;height: 30%">Вы не авторизованы</p>
+                <a style="margin: 5px 20px 2px 2px;width: 100px" href="/Login/">Войти</a>
+            }
+
+
+
+        </div>
+    </div>
+    <!-- весь див с классом data base будет менятся кнопками (по сути это вьюшки меняет рендер партиал) -->
+    <div class="data base">
+    </div>
+</body>
+</html>

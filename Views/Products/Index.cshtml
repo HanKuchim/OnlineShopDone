@@ -1,0 +1,79 @@
+﻿@using System.Security.Claims
+@model IEnumerable<OnlineShop.Models.Product>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+
+<div>
+    <form asp-action="Index" asp-controller="Products" method="get">
+        <p>
+            Search: <input type="text" name="searchString" />
+            Min Price: <input type="text" name="minPrice" />
+            Max Price: <input type="text" name="maxPrice" />
+            Vendor:
+            <select name="vendorId">
+                <option value="">All</option>
+                @foreach (var vendor in ViewBag.Vendors)
+                {
+                    <option value="@vendor.Id">@vendor.Name</option>
+                }
+            </select>
+            <input type="submit" value="Filter" />
+            <a href="@Url.Action("Index", "Products")">Clear Filters</a>
+
+        </p>
+    </form>
+</div>
+
+@if (User.FindFirst(ClaimTypes.Role)?.Value! == "Admin")
+{
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <a asp-action="Index" asp-controller="Products" asp-route-sortOrder="@ViewData["NameSortParam"]">@Html.DisplayNameFor(model => model.Name)</a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-controller="Products" asp-route-sortOrder="@ViewData["RatingSortParam"]">@Html.DisplayNameFor(model => model.Rating)</a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-controller="Products" asp-route-sortOrder="@ViewData["PriceSortParam"]">@Html.DisplayNameFor(model => model.Price)</a>
+            </th>
+            <th>
+                VendorName
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Rating)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Vendor.Name)
+                </td>
+                <td>
+                    @if (User.FindFirst(ClaimTypes.Role)?.Value! == "Admin")
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
